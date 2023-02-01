@@ -84,7 +84,8 @@ class MainForms:
 
                 if data.get("target") == "StartTest":
                     question = await CRUDQuestions.get(question_id=1)
-                    photo = open(f'img/{question.img_id}.png', 'rb')
+                    photo = open(f'/opt/git/StandardsTestBot/img/{question.img_id}.png', 'rb')
+                    #photo1 = open(f'img/{question.img_id}.png', 'rb')
                     await callback.message.delete()
                     await callback.message.answer_photo(photo=photo,
                                                         caption=question.description,
@@ -121,6 +122,7 @@ class MainForms:
                         i = (correct_answer % 100)
                         await callback.message.delete()
                         await callback.message.answer(text=f"Поздравляю вы прошли тест на {i} %")
+
         if message:
             await message.delete()
 
