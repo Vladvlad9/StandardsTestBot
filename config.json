@@ -1,0 +1,8 @@
+{
+  "BOT": {
+    "TOKEN": "5571028586:AAHvSaBspDcHkHU5v6doPOtcKsxRWYKLyv8",
+    "ADMINS": [381252111]
+  },
+  "DATABASE": "postgres:postgres@localhost:5432/standards_test"
+
+}
