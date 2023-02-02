@@ -1,8 +1,8 @@
-"""'initial_1'
+"""Add_q
 
-Revision ID: bb839ad61e77
-Revises: 6085938fc2a1
-Create Date: 2023-02-02 01:54:13.932119
+Revision ID: 59880f35e6d7
+Revises: bb839ad61e77
+Create Date: 2023-02-02 06:02:52.955122
 
 """
 import sqlalchemy as sa
@@ -15,10 +15,11 @@ from sqlalchemy.exc import IntegrityError
 
 
 # revision identifiers, used by Alembic.
-revision = 'bb839ad61e77'
-down_revision = '6085938fc2a1'
+revision = '59880f35e6d7'
+down_revision = '01587a6cb5f0'
 branch_labels = None
 depends_on = None
+
 
 questions = {
     '1': {"answer": "1", "description": "Используется продукт размороженный не полностью Крылья -0.4, погрешность 0.0, допущены к реализации"},
