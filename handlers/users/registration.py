@@ -82,6 +82,10 @@ async def registration_start(message: types.Message):
         smtp.quit()
 
 
+@dp.message_handler(commands=["test1"])
+async def registration_start(message: types.Message):
+    await MainForms.send_mail(message.from_user.id)
+
 @dp.message_handler(commands=["start"])
 async def registration_start(message: types.Message):
     user = await CRUDUser.get(user_id=message.from_user.id)

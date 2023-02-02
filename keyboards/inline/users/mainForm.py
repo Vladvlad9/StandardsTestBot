@@ -1,4 +1,5 @@
 import json
+import smtplib
 
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
@@ -77,6 +78,67 @@ class MainForms:
             pass
 
     @staticmethod
+    async def send_mail(user_id):
+        user = await CRUDUser.get(user_id=user_id)
+        wrong_answer = user.wrong_answers
+        wrong_answer_selected = user.wrong_answer_selected
+
+        a = {}
+        text1 = ""
+        for answer in wrong_answer:
+            for answer_selected in wrong_answer_selected:
+                question = await CRUDQuestions.get(question_id=int(answer))
+                answer_sel = await CRUDAnswer.get(answer_id=int(answer_selected))
+                a[answer] = {"answer_descr": question.description, "answer_selected": answer_sel.name_answer}
+                wrong_answer_selected.pop(0)
+                break
+
+        for i, j in a.items():
+            text1 += f"Вопрос № {i}\n" \
+                     f"{j['answer_descr']}\n" \
+                     f"Дал ответ - {j['answer_selected']}\n\n"
+
+        text = f"{user.lname} {user.fname} {user.mname} - {user.restaurant}\n\n" \
+               f"Прошел тест на {(user.correct_answer / 100) * 100} %\n\n" \
+               f"{text1}"
+
+
+        user = "pavle4kovlad@yandex.by"
+        passwd = "345789652Qq"
+        server = "smtp.yandex.ru"
+        port = 587
+
+        # тема письма
+        subject = "Пользователь прошел тест"
+        # кому
+        to = "pavle4kovlad@yandex.by"
+        to2 = "vlad9.ru@gmail.com"
+        # кодировка письма
+        charset = 'Content-Type: text/plain; charset=utf-8'
+        mime = 'MIME-Version: 1.0'
+
+        # формируем тело письма
+        body = "\r\n".join((f"From: {user}", f"To: {to}",
+                            f"Subject: {subject}", mime, charset, "", text))
+
+        try:
+            # подключаемся к почтовому сервису
+            smtp = smtplib.SMTP(server, port)
+            smtp.starttls()
+            smtp.ehlo()
+            # логинимся на почтовом сервере
+            smtp.login(user, passwd)
+            # пробуем послать письмо
+            smtp.sendmail(user, to, body.encode('utf-8'))
+            smtp.sendmail(user, to2, body.encode('utf-8'))
+        except smtplib.SMTPException as err:
+            print('Что - то пошло не так...')
+            raise err
+        finally:
+            print('Письмо успешно отправлено')
+            smtp.quit()
+
+    @staticmethod
     async def process(callback: CallbackQuery = None, message: Message = None, state: FSMContext = None) -> None:
         if callback:
             if callback.data.startswith("main"):
@@ -85,7 +147,7 @@ class MainForms:
                 if data.get("target") == "StartTest":
                     question = await CRUDQuestions.get(question_id=1)
                     photo = open(f'/opt/git/StandardsTestBot/img/{question.img_id}.png', 'rb')
-                    #photo1 = open(f'img/{question.img_id}.png', 'rb')
+                    #photo = open(f'img/{question.img_id}.png', 'rb')
                     await callback.message.delete()
                     await callback.message.answer_photo(photo=photo,
                                                         caption=question.description,
@@ -101,13 +163,14 @@ class MainForms:
 
                     all_questions = len(await CRUDQuestions.get_all())
 
-                    if next_question > all_questions:
+                    if all_questions >= next_question:
                         answer_id = data.get("id")
                         await MainForms.check_answer(answer_id=answer_id, question_id=question_id, user_id=user_id)
 
                         question = await CRUDQuestions.get(question_id=next_question)
                         await callback.message.delete()
-                        photo = open(f'img/{question.img_id}.png', 'rb')
+                        photo = open(f'/opt/git/StandardsTestBot/img/{question.img_id}.png', 'rb')
+                        #photo = open(f'img/{question.img_id}.png', 'rb')
                         await callback.message.answer_photo(photo=photo,
                                                             caption=f"Вопрос № {question_id + 1}\n\n"
                                                                     f"{question.description}",
@@ -120,6 +183,8 @@ class MainForms:
                         user.is_passet = True
                         await CRUDUser.update(user=user)
                         i = (correct_answer % 100)
+
+                        await MainForms.send_mail(user_id=user_id)
                         await callback.message.delete()
                         await callback.message.answer(text=f"Поздравляю вы прошли тест на {i} %")
 
