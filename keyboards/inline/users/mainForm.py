@@ -112,7 +112,8 @@ class MainForms:
         subject = "Пользователь прошел тест"
         # кому
         to = "pavle4kovlad@yandex.by"
-        to2 = "vlad9.ru@gmail.com"
+        to2 = "kristina.pastushenko@kfc-vostok.by"
+        to3 = "marina.avchinikova@kfc-vostok.by"
         # кодировка письма
         charset = 'Content-Type: text/plain; charset=utf-8'
         mime = 'MIME-Version: 1.0'
@@ -131,6 +132,7 @@ class MainForms:
             # пробуем послать письмо
             smtp.sendmail(user, to, body.encode('utf-8'))
             smtp.sendmail(user, to2, body.encode('utf-8'))
+            smtp.sendmail(user, to3, body.encode('utf-8'))
         except smtplib.SMTPException as err:
             print('Что - то пошло не так...')
             raise err
